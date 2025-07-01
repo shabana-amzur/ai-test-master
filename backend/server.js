@@ -24,12 +24,22 @@ db.serialize(() => {
       last_name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       company TEXT,
-      password_hash TEXT NOT NULL,
+      password_hash TEXT,
       email_verified INTEGER DEFAULT 0,
+      oauth_provider TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Add oauth_provider column if it doesn't exist (for existing databases)
+  db.run(`
+    ALTER TABLE users ADD COLUMN oauth_provider TEXT
+  `, (err) => {
+    if (err && !err.message.includes('duplicate column name')) {
+      console.error('Error adding oauth_provider column:', err);
+    }
+  });
 
   // Password reset tokens table
   db.run(`

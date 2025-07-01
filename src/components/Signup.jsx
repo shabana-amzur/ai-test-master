@@ -8,8 +8,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     company: '',
     password: '',
@@ -29,8 +28,7 @@ const Signup = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          fullName: formData.fullName,
           email: formData.email,
           company: formData.company,
           password: formData.password,
@@ -65,14 +63,88 @@ const Signup = () => {
     });
   };
 
-  const handleGoogleSignup = () => {
-    console.log('Google signup clicked');
-    // Add Google OAuth logic here
+  const handleGoogleSignup = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // For now, simulate Google OAuth
+      // In production, you would integrate with Google OAuth
+      const googleUser = {
+        fullName: 'John Doe',
+        email: 'john.doe@gmail.com',
+        company: 'Google Inc.',
+        provider: 'google'
+      };
+      
+      const response = await fetch('http://localhost:3001/api/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(googleUser),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Google signup failed');
+      }
+
+      // Success - redirect to welcome page
+      navigate('/welcome', { 
+        state: { 
+          user: data.user 
+        } 
+      });
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGithubSignup = () => {
-    console.log('GitHub signup clicked');
-    // Add GitHub OAuth logic here
+  const handleGithubSignup = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      // For now, simulate GitHub OAuth
+      // In production, you would integrate with GitHub OAuth
+      const githubUser = {
+        fullName: 'Jane Smith',
+        email: 'jane.smith@github.com',
+        company: 'GitHub Inc.',
+        provider: 'github'
+      };
+      
+      const response = await fetch('http://localhost:3001/api/auth/github', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(githubUser),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'GitHub signup failed');
+      }
+
+      // Success - redirect to welcome page
+      navigate('/welcome', { 
+        state: { 
+          user: data.user 
+        } 
+      });
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -141,38 +213,20 @@ const Signup = () => {
               </div>
             )}
             
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                  First name
-                </label>
-                <input
-                  id="firstName"
-                  name="firstName"
-                  type="text"
-                  required
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  placeholder="First name"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Last name
-                </label>
-                <input
-                  id="lastName"
-                  name="lastName"
-                  type="text"
-                  required
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
-                  placeholder="Last name"
-                />
-              </div>
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                Full name
+              </label>
+              <input
+                id="fullName"
+                name="fullName"
+                type="text"
+                required
+                value={formData.fullName}
+                onChange={handleChange}
+                className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+                placeholder="Enter your full name"
+              />
             </div>
 
             <div>

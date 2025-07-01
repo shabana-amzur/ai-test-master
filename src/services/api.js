@@ -93,17 +93,17 @@ class ApiService {
   }
 
   // Social auth methods
-  async googleAuth(googleToken) {
+  async googleAuth(userData) {
     return this.request('/auth/google', {
       method: 'POST',
-      body: JSON.stringify({ token: googleToken }),
+      body: JSON.stringify(userData),
     });
   }
 
-  async githubAuth(githubCode) {
+  async githubAuth(userData) {
     return this.request('/auth/github', {
       method: 'POST',
-      body: JSON.stringify({ code: githubCode }),
+      body: JSON.stringify(userData),
     });
   }
 }

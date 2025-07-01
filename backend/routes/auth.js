@@ -55,16 +55,21 @@ const sendEmail = async (to, subject, html) => {
 // SIGNUP ENDPOINT
 router.post('/signup', async (req, res) => {
   try {
-    const { firstName, lastName, email, company, password } = req.body;
+    const { fullName, email, company, password } = req.body;
 
     // Validation
-    if (!firstName || !lastName || !email || !password) {
-      return res.status(400).json({ message: 'All fields are required' });
+    if (!fullName || !email || !password) {
+      return res.status(400).json({ message: 'Full name, email, and password are required' });
     }
 
     if (password.length < 8) {
       return res.status(400).json({ message: 'Password must be at least 8 characters long' });
     }
+
+    // Split fullName into first and last name for database storage
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
 
     // Check if user already exists
     req.db.get('SELECT id FROM users WHERE email = ?', [email], async (err, existingUser) => {
@@ -515,6 +520,172 @@ router.post('/resend-verification', async (req, res) => {
     });
   } catch (error) {
     console.error('Resend verification error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
+// Google OAuth signup
+router.post('/google', async (req, res) => {
+  try {
+    const { fullName, email, company, provider } = req.body;
+
+    // Validation
+    if (!fullName || !email) {
+      return res.status(400).json({ message: 'Full name and email are required' });
+    }
+
+    // Split fullName into first and last name for database storage
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+    // Check if user already exists
+    req.db.get('SELECT * FROM users WHERE email = ?', [email], (err, existingUser) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+
+      if (existingUser) {
+        // User exists, log them in
+        const token = generateToken(existingUser);
+        return res.json({
+          success: true,
+          message: 'Logged in successfully',
+          token,
+          user: {
+            id: existingUser.id,
+            fullName: `${existingUser.first_name} ${existingUser.last_name}`,
+            email: existingUser.email,
+            company: existingUser.company,
+            emailVerified: existingUser.email_verified
+          }
+        });
+      }
+
+      // Create new user (Google users are automatically verified)
+      req.db.run(
+        'INSERT INTO users (first_name, last_name, email, company, email_verified, oauth_provider) VALUES (?, ?, ?, ?, ?, ?)',
+        [firstName, lastName, email, company || 'Google Inc.', 1, 'google'],
+        function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Failed to create user' });
+          }
+
+          // Get the created user
+          req.db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, user) => {
+            if (err) {
+              console.error('Database error:', err);
+              return res.status(500).json({ message: 'User created but failed to retrieve' });
+            }
+
+            const token = generateToken(user);
+
+            res.status(201).json({
+              success: true,
+              message: 'Account created successfully with Google',
+              token,
+              user: {
+                id: user.id,
+                fullName: `${user.first_name} ${user.last_name}`,
+                email: user.email,
+                company: user.company,
+                emailVerified: user.email_verified
+              }
+            });
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Google OAuth error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
+// GitHub OAuth signup
+router.post('/github', async (req, res) => {
+  try {
+    const { fullName, email, company, provider } = req.body;
+
+    // Validation
+    if (!fullName || !email) {
+      return res.status(400).json({ message: 'Full name and email are required' });
+    }
+
+    // Split fullName into first and last name for database storage
+    const nameParts = fullName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+    // Check if user already exists
+    req.db.get('SELECT * FROM users WHERE email = ?', [email], (err, existingUser) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+
+      if (existingUser) {
+        // User exists, log them in
+        const token = generateToken(existingUser);
+        return res.json({
+          success: true,
+          message: 'Logged in successfully',
+          token,
+          user: {
+            id: existingUser.id,
+            fullName: `${existingUser.first_name} ${existingUser.last_name}`,
+            email: existingUser.email,
+            company: existingUser.company,
+            emailVerified: existingUser.email_verified
+          }
+        });
+      }
+
+      // Create new user (GitHub users are automatically verified)
+      req.db.run(
+        'INSERT INTO users (first_name, last_name, email, company, email_verified, oauth_provider) VALUES (?, ?, ?, ?, ?, ?)',
+        [firstName, lastName, email, company || 'GitHub Inc.', 1, 'github'],
+        function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Failed to create user' });
+          }
+
+          // Get the created user
+          req.db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, user) => {
+            if (err) {
+              console.error('Database error:', err);
+              return res.status(500).json({ message: 'User created but failed to retrieve' });
+            }
+
+            const token = generateToken(user);
+
+            res.status(201).json({
+              success: true,
+              message: 'Account created successfully with GitHub',
+              token,
+              user: {
+                id: user.id,
+                fullName: `${user.first_name} ${user.last_name}`,
+                email: user.email,
+                company: user.company,
+                emailVerified: user.email_verified
+              }
+            });
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('GitHub OAuth error:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Internal server error' 
