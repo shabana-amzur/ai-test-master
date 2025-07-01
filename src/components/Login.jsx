@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,8 +36,13 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Success
-      alert('Login successful! Token: ' + data.token);
+      // Success - Navigate to Welcome screen
+      navigate('/welcome', { 
+        state: { 
+          email: formData.email,
+          user: data.user 
+        } 
+      });
       
     } catch (err) {
       setError(err.message);

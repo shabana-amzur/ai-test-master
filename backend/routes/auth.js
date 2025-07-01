@@ -79,7 +79,7 @@ router.post('/signup', async (req, res) => {
       }
 
       if (existingUser) {
-        return res.status(400).json({ message: 'User with this email already exists' });
+        return res.status(400).json({ message: 'User with this email exists' });
       }
 
       try {
@@ -879,30 +879,39 @@ router.post('/github/callback', async (req, res) => {
   }
 });
 
-// Google OAuth callback - handles the code exchange
-router.post('/google/callback', async (req, res) => {
+// Google Identity Services (One Tap) endpoint
+router.post('/google/signin', async (req, res) => {
   try {
-    const { code } = req.body;
+    const { credential } = req.body;
 
-    if (!code) {
-      return res.status(400).json({ message: 'Authorization code is required' });
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential is required' });
     }
 
-    console.log('Received Google OAuth code:', code);
+    // In production, you would verify the JWT token with Google
+    // For now, we'll decode it to get user information
+    // Note: This is not secure for production - you should verify the token with Google
+    
+    // Decode JWT (this is just for demo - in production, verify with Google)
+    const base64Url = credential.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    const googleUser = JSON.parse(jsonPayload);
+    console.log('Decoded Google user:', googleUser);
 
-    // For development: Mock user data (in production, exchange code for token and get real user data)
-    const mockUserData = {
-      email: 'test.user@gmail.com',
-      name: 'Test User',
-      given_name: 'Test',
-      family_name: 'User',
-      verified_email: true
+    // Extract user information
+    const userData = {
+      fullName: googleUser.name || 'Google User',
+      email: googleUser.email,
+      company: googleUser.hd || 'Not specified', // hd is the hosted domain
+      provider: 'google'
     };
 
-    console.log('Mock Google user data:', mockUserData);
-
     // Check if user already exists
-    req.db.get('SELECT * FROM users WHERE email = ?', [mockUserData.email], (err, existingUser) => {
+    req.db.get('SELECT * FROM users WHERE email = ?', [userData.email], (err, existingUser) => {
       if (err) {
         console.error('Database error:', err);
         return res.status(500).json({ message: 'Database error' });
@@ -925,20 +934,20 @@ router.post('/google/callback', async (req, res) => {
         });
       }
 
-      // Create new user (Google users are automatically verified)
-      const firstName = mockUserData.given_name || mockUserData.name.split(' ')[0] || '';
-      const lastName = mockUserData.family_name || mockUserData.name.split(' ').slice(1).join(' ') || '';
+      // Create new user
+      const nameParts = userData.fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
 
       req.db.run(
         'INSERT INTO users (first_name, last_name, email, company, email_verified, oauth_provider) VALUES (?, ?, ?, ?, ?, ?)',
-        [firstName, lastName, mockUserData.email, 'Google Inc.', 1, 'google'],
+        [firstName, lastName, userData.email, userData.company, 1, 'google'],
         function(err) {
           if (err) {
             console.error('Database error:', err);
             return res.status(500).json({ message: 'Failed to create user' });
           }
 
-          // Get the created user
           req.db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, user) => {
             if (err) {
               console.error('Database error:', err);
@@ -946,8 +955,6 @@ router.post('/google/callback', async (req, res) => {
             }
 
             const token = generateToken(user);
-
-            console.log('Created new Google user:', user);
 
             res.status(201).json({
               success: true,
@@ -965,13 +972,9 @@ router.post('/google/callback', async (req, res) => {
         }
       );
     });
-
   } catch (error) {
-    console.error('Google OAuth callback error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
-    });
+    console.error('Google sign-in error:', error);
+    res.status(500).json({ message: 'Google sign-in failed' });
   }
 });
 

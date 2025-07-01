@@ -6,9 +6,11 @@ const Welcome = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const email = location.state?.email || '';
+  const user = location.state?.user || {};
+  const userName = user.first_name || user.name || 'User';
 
   const handleContinue = () => {
-    // For now, just go back to landing page - we can add dashboard later
+    // Navigate back to landing page
     navigate('/');
   };
 
@@ -26,10 +28,10 @@ const Welcome = () => {
           {/* Welcome Message */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              🎉 Welcome to AI Test Master!
+              🎉 Welcome back, {userName}!
             </h1>
             <p className="text-gray-600 text-lg mb-2">
-              Your email has been successfully verified
+              You've successfully signed in to AI Test Master
             </p>
             {email && (
               <p className="text-blue-600 font-semibold">
