@@ -693,4 +693,286 @@ router.post('/github', async (req, res) => {
   }
 });
 
+// Google OAuth callback (for production use)
+router.post('/google/callback', async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ message: 'Authorization code is required' });
+    }
+
+    // In production, you would:
+    // 1. Exchange the code for an access token with Google
+    // 2. Use the access token to get user information from Google
+    // 3. Create or find the user in your database
+    
+    // For demo purposes, we'll simulate this process
+    const mockGoogleUser = {
+      fullName: 'John Doe',
+      email: 'john.doe@gmail.com',
+      company: 'Google Inc.',
+      provider: 'google'
+    };
+
+    // Check if user already exists
+    req.db.get('SELECT * FROM users WHERE email = ?', [mockGoogleUser.email], (err, existingUser) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+
+      if (existingUser) {
+        // User exists, log them in
+        const token = generateToken(existingUser);
+        return res.json({
+          success: true,
+          message: 'Logged in successfully',
+          token,
+          user: {
+            id: existingUser.id,
+            fullName: `${existingUser.first_name} ${existingUser.last_name}`,
+            email: existingUser.email,
+            company: existingUser.company,
+            emailVerified: existingUser.email_verified
+          }
+        });
+      }
+
+      // Create new user
+      const nameParts = mockGoogleUser.fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+      req.db.run(
+        'INSERT INTO users (first_name, last_name, email, company, email_verified, oauth_provider) VALUES (?, ?, ?, ?, ?, ?)',
+        [firstName, lastName, mockGoogleUser.email, mockGoogleUser.company, 1, 'google'],
+        function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Failed to create user' });
+          }
+
+          req.db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, user) => {
+            if (err) {
+              console.error('Database error:', err);
+              return res.status(500).json({ message: 'User created but failed to retrieve' });
+            }
+
+            const token = generateToken(user);
+
+            res.status(201).json({
+              success: true,
+              message: 'Account created successfully with Google',
+              token,
+              user: {
+                id: user.id,
+                fullName: `${user.first_name} ${user.last_name}`,
+                email: user.email,
+                company: user.company,
+                emailVerified: user.email_verified
+              }
+            });
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('Google OAuth callback error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
+// GitHub OAuth callback (for production use)
+router.post('/github/callback', async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ message: 'Authorization code is required' });
+    }
+
+    // In production, you would:
+    // 1. Exchange the code for an access token with GitHub
+    // 2. Use the access token to get user information from GitHub
+    // 3. Create or find the user in your database
+    
+    // For demo purposes, we'll simulate this process
+    const mockGitHubUser = {
+      fullName: 'Jane Smith',
+      email: 'jane.smith@github.com',
+      company: 'GitHub Inc.',
+      provider: 'github'
+    };
+
+    // Check if user already exists
+    req.db.get('SELECT * FROM users WHERE email = ?', [mockGitHubUser.email], (err, existingUser) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+
+      if (existingUser) {
+        // User exists, log them in
+        const token = generateToken(existingUser);
+        return res.json({
+          success: true,
+          message: 'Logged in successfully',
+          token,
+          user: {
+            id: existingUser.id,
+            fullName: `${existingUser.first_name} ${existingUser.last_name}`,
+            email: existingUser.email,
+            company: existingUser.company,
+            emailVerified: existingUser.email_verified
+          }
+        });
+      }
+
+      // Create new user
+      const nameParts = mockGitHubUser.fullName.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
+      req.db.run(
+        'INSERT INTO users (first_name, last_name, email, company, email_verified, oauth_provider) VALUES (?, ?, ?, ?, ?, ?)',
+        [firstName, lastName, mockGitHubUser.email, mockGitHubUser.company, 1, 'github'],
+        function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Failed to create user' });
+          }
+
+          req.db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, user) => {
+            if (err) {
+              console.error('Database error:', err);
+              return res.status(500).json({ message: 'User created but failed to retrieve' });
+            }
+
+            const token = generateToken(user);
+
+            res.status(201).json({
+              success: true,
+              message: 'Account created successfully with GitHub',
+              token,
+              user: {
+                id: user.id,
+                fullName: `${user.first_name} ${user.last_name}`,
+                email: user.email,
+                company: user.company,
+                emailVerified: user.email_verified
+              }
+            });
+          });
+        }
+      );
+    });
+  } catch (error) {
+    console.error('GitHub OAuth callback error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
+// Google OAuth callback - handles the code exchange
+router.post('/google/callback', async (req, res) => {
+  try {
+    const { code } = req.body;
+
+    if (!code) {
+      return res.status(400).json({ message: 'Authorization code is required' });
+    }
+
+    console.log('Received Google OAuth code:', code);
+
+    // For development: Mock user data (in production, exchange code for token and get real user data)
+    const mockUserData = {
+      email: 'test.user@gmail.com',
+      name: 'Test User',
+      given_name: 'Test',
+      family_name: 'User',
+      verified_email: true
+    };
+
+    console.log('Mock Google user data:', mockUserData);
+
+    // Check if user already exists
+    req.db.get('SELECT * FROM users WHERE email = ?', [mockUserData.email], (err, existingUser) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+
+      if (existingUser) {
+        // User exists, log them in
+        const token = generateToken(existingUser);
+        return res.json({
+          success: true,
+          message: 'Logged in successfully',
+          token,
+          user: {
+            id: existingUser.id,
+            fullName: `${existingUser.first_name} ${existingUser.last_name}`,
+            email: existingUser.email,
+            company: existingUser.company,
+            emailVerified: existingUser.email_verified
+          }
+        });
+      }
+
+      // Create new user (Google users are automatically verified)
+      const firstName = mockUserData.given_name || mockUserData.name.split(' ')[0] || '';
+      const lastName = mockUserData.family_name || mockUserData.name.split(' ').slice(1).join(' ') || '';
+
+      req.db.run(
+        'INSERT INTO users (first_name, last_name, email, company, email_verified, oauth_provider) VALUES (?, ?, ?, ?, ?, ?)',
+        [firstName, lastName, mockUserData.email, 'Google Inc.', 1, 'google'],
+        function(err) {
+          if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Failed to create user' });
+          }
+
+          // Get the created user
+          req.db.get('SELECT * FROM users WHERE id = ?', [this.lastID], (err, user) => {
+            if (err) {
+              console.error('Database error:', err);
+              return res.status(500).json({ message: 'User created but failed to retrieve' });
+            }
+
+            const token = generateToken(user);
+
+            console.log('Created new Google user:', user);
+
+            res.status(201).json({
+              success: true,
+              message: 'Account created successfully with Google',
+              token,
+              user: {
+                id: user.id,
+                fullName: `${user.first_name} ${user.last_name}`,
+                email: user.email,
+                company: user.company,
+                emailVerified: user.email_verified
+              }
+            });
+          });
+        }
+      );
+    });
+
+  } catch (error) {
+    console.error('Google OAuth callback error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
+  }
+});
+
 module.exports = router;

@@ -5,6 +5,8 @@ import Signup from './components/Signup';
 import Login from './components/Login';
 import VerifyEmail from './components/VerifyEmail';
 import Welcome from './components/Welcome';
+import GoogleCallback from './components/GoogleCallback';
+import GitHubCallback from './components/GitHubCallback';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/welcome" element={<Welcome />} />
+        <Route path="/auth/google/callback" element={<GoogleCallback />} />
+        <Route path="/auth/github/callback" element={<GitHubCallback />} />
       </Routes>
     </Router>
   );

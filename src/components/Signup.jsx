@@ -63,88 +63,36 @@ const Signup = () => {
     });
   };
 
-  const handleGoogleSignup = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      // For now, simulate Google OAuth
-      // In production, you would integrate with Google OAuth
-      const googleUser = {
-        fullName: 'John Doe',
-        email: 'john.doe@gmail.com',
-        company: 'Google Inc.',
-        provider: 'google'
-      };
-      
-      const response = await fetch('http://localhost:3001/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(googleUser),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Google signup failed');
-      }
-
-      // Success - redirect to welcome page
-      navigate('/welcome', { 
-        state: { 
-          user: data.user 
-        } 
-      });
-      
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleGoogleSignup = () => {
+    // Redirect to Google OAuth
+    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '143464414523-0r8agm4s8muqbf29fhs6r3fvcl9p9guf.apps.googleusercontent.com';
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
+    const scope = 'openid email profile';
+    
+    const googleAuthUrl = `https://accounts.google.com/oauth/authorize?` +
+      `client_id=${googleClientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${encodeURIComponent(scope)}&` +
+      `response_type=code&` +
+      `access_type=offline&` +
+      `prompt=consent`;
+    
+    window.location.href = googleAuthUrl;
   };
 
-  const handleGithubSignup = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      
-      // For now, simulate GitHub OAuth
-      // In production, you would integrate with GitHub OAuth
-      const githubUser = {
-        fullName: 'Jane Smith',
-        email: 'jane.smith@github.com',
-        company: 'GitHub Inc.',
-        provider: 'github'
-      };
-      
-      const response = await fetch('http://localhost:3001/api/auth/github', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(githubUser),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'GitHub signup failed');
-      }
-
-      // Success - redirect to welcome page
-      navigate('/welcome', { 
-        state: { 
-          user: data.user 
-        } 
-      });
-      
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleGithubSignup = () => {
+    // Redirect to GitHub OAuth
+    const githubClientId = 'your-github-client-id'; // You'll need to provide this
+    const redirectUri = `${window.location.origin}/auth/github/callback`;
+    const scope = 'user:email';
+    
+    const githubAuthUrl = `https://github.com/login/oauth/authorize?` +
+      `client_id=${githubClientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${encodeURIComponent(scope)}&` +
+      `state=signup`;
+    
+    window.location.href = githubAuthUrl;
   };
 
   return (
@@ -303,85 +251,87 @@ const Signup = () => {
                 />
               </div>
               <div className="ml-3 text-sm">
-                <label htmlFor="agreeToTerms" className="text-gray-600">
-                  Agree to our{' '}
-                  <a href="#" className="text-primary-600 hover:text-primary-500 underline">
-                    Terms of Service
+                <label htmlFor="agreeToTerms" className="text-gray-500">
+                  I agree to the{' '}
+                  <a href="#" className="text-primary-600 hover:text-primary-500">
+                    Terms and Conditions
                   </a>{' '}
                   and{' '}
-                  <a href="#" className="text-primary-600 hover:text-primary-500 underline">
+                  <a href="#" className="text-primary-600 hover:text-primary-500">
                     Privacy Policy
                   </a>
                 </label>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={!formData.agreeToTerms || loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-            >
-              {loading ? 'Creating account...' : 'Create your account'}
-            </button>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{' '}
-                <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500">
-                  Log in
-                </Link>
-              </p>
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:bg-primary-400 disabled:cursor-not-allowed transition-colors"
+              >
+                {loading ? 'Creating account...' : 'Create account'}
+              </button>
             </div>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+            </div>
+            <div className="mt-6 text-center">
+              <span className="text-sm text-gray-600">
+                Already have an account?{' '}
+                <Link
+                  to="/login"
+                  className="font-medium text-primary-600 hover:text-primary-500"
+                >
+                  Sign in
+                </Link>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Right side - Image/Animation */}
-      <div className="hidden lg:block relative w-1/2 bg-gradient-to-br from-primary-50 to-primary-100">
-        <div className="absolute inset-0 flex items-center justify-center p-12">
-          <div className="max-w-lg text-center">
-            {/* You can replace this with an actual GIF or animation */}
-            <div className="bg-white rounded-2xl shadow-2xl p-8 mb-8">
-              <div className="space-y-4">
-                {/* Mock testing interface */}
-                <div className="bg-gray-100 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span className="text-sm font-medium text-gray-700">AI Test Runner</span>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">Login flow test - Passed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-xs text-gray-600">API integration test - Passed</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-gray-600">UI responsiveness test - Running...</span>
-                    </div>
-                  </div>
+      {/* Right side - Image/Branding */}
+      <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-primary-600 to-primary-800">
+        <div className="h-full flex flex-col justify-center items-center text-white p-12">
+          <div className="max-w-md text-center">
+            <h1 className="text-4xl font-bold mb-6">
+              Welcome to AI Test Master
+            </h1>
+            <p className="text-xl mb-8 text-primary-100">
+              Transform your testing workflow with AI-powered automation and intelligent insights.
+            </p>
+            <div className="space-y-4 text-left">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 w-6 h-6 bg-white rounded-full flex items-center justify-center mr-3">
+                  <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
                 </div>
-                
-                <div className="bg-primary-50 rounded-lg p-4">
-                  <div className="text-sm font-medium text-primary-800 mb-2">Test Coverage</div>
-                  <div className="bg-white rounded-full h-2">
-                    <div className="bg-primary-500 h-2 rounded-full" style={{width: '87%'}}></div>
-                  </div>
-                  <div className="text-xs text-primary-600 mt-1">87% coverage</div>
+                <span>Automated test generation</span>
+              </div>
+              <div className="flex items-center">
+                <div className="flex-shrink-0 w-6 h-6 bg-white rounded-full flex items-center justify-center mr-3">
+                  <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
                 </div>
+                <span>Real-time collaboration</span>
+              </div>
+              <div className="flex items-center">
+                <div className="flex-shrink-0 w-6 h-6 bg-white rounded-full flex items-center justify-center mr-3">
+                  <svg className="w-4 h-4 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span>Comprehensive reporting</span>
               </div>
             </div>
-            
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              Intelligent Testing, Simplified
-            </h3>
-            <p className="text-gray-600 leading-relaxed">
-              Join thousands of teams using AI Test Master to automate their testing workflows, 
-              catch bugs faster, and ship with confidence.
-            </p>
           </div>
         </div>
       </div>
