@@ -64,6 +64,22 @@ const Login = () => {
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="max-w-md w-full space-y-8">
+          {/* Logo */}
+          <div className="text-center">
+            <Link to="/" className="inline-block">
+              <div className="mb-4">
+                <img 
+                  src="https://amzur.com/wp-content/uploads/2022/07/Amzur-logo-2022.png" 
+                  alt="Amzur Logo"
+                  className="h-12 mx-auto hover:opacity-80 transition-opacity"
+                />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                AI Test Master
+              </h1>
+            </Link>
+          </div>
+
           {/* Header */}
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
@@ -130,27 +146,19 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="rememberMe"
-                  name="rememberMe"
-                  type="checkbox"
-                  checked={formData.rememberMe}
-                  onChange={handleInputChange}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700">
-                  Remember me
-                </label>
-              </div>
-              <Link
-                to="/forgot-password"
-                className="text-sm text-blue-600 hover:text-blue-500"
-              >
-                Forgot password?
-              </Link>
+            {/* Remember Me */}
+            <div className="flex items-center">
+              <input
+                id="rememberMe"
+                name="rememberMe"
+                type="checkbox"
+                checked={formData.rememberMe}
+                onChange={handleInputChange}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700">
+                Remember me
+              </label>
             </div>
 
             {/* Error Message */}

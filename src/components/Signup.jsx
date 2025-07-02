@@ -24,6 +24,8 @@ const Signup = () => {
     }));
   };
 
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -73,6 +75,22 @@ const Signup = () => {
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-white">
         <div className="max-w-md w-full space-y-8">
+          {/* Logo */}
+          <div className="text-center">
+            <Link to="/" className="inline-block">
+              <div className="mb-4">
+                <img 
+                  src="https://amzur.com/wp-content/uploads/2022/07/Amzur-logo-2022.png" 
+                  alt="Amzur Logo"
+                  className="h-12 mx-auto hover:opacity-80 transition-opacity"
+                />
+              </div>
+              <h1 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                AI Test Master
+              </h1>
+            </Link>
+          </div>
+
           {/* Header */}
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
