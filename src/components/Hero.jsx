@@ -32,7 +32,7 @@ const Hero = () => {
               className="btn-primary flex items-center gap-2 text-lg px-8 py-4"
             >
               <Shield size={20} />
-              Start 14-Day Free Trial
+              Get Started
             </Link>
           </div>
 

@@ -19,7 +19,7 @@ const CTA = () => {
             to="/signup"
             className="bg-white text-primary-600 hover:bg-gray-50 font-semibold py-4 px-8 rounded-lg transition-colors flex items-center gap-2 text-lg justify-center"
           >
-            Start 14-Day Free Trial
+            Get Started
             <ArrowRight size={20} />
           </Link>
         </div>

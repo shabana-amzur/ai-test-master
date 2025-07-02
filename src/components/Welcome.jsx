@@ -1,16 +1,14 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { CheckCircle, ArrowRight } from 'lucide-react';
+import { Home } from 'lucide-react';
 
 const Welcome = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const email = location.state?.email || '';
   const user = location.state?.user || {};
-  const userName = user.first_name || user.name || 'User';
+  const userName = user.fullName || user.name || user.email || 'User';
 
   const handleContinue = () => {
-    // Navigate back to landing page
     navigate('/');
   };
 
@@ -18,26 +16,28 @@ const Welcome = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
       <div className="max-w-lg w-full">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          {/* Success Icon */}
+          {/* Logo */}
           <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+            <div className="w-32 h-20 bg-white rounded-lg shadow-sm flex items-center justify-center p-2">
+              <img 
+                src="https://amzur.com/wp-content/uploads/2022/07/Amzur-logo-2022.png" 
+                alt="Amzur Logo" 
+                className="max-w-full max-h-full object-contain"
+              />
             </div>
           </div>
 
           {/* Welcome Message */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              🎉 Welcome back, {userName}!
+              🎉 Welcome, {userName}!
             </h1>
             <p className="text-gray-600 text-lg mb-2">
               You've successfully signed in to AI Test Master
             </p>
-            {email && (
-              <p className="text-blue-600 font-semibold">
-                {email}
-              </p>
-            )}
+            <p className="text-blue-600 font-semibold">
+              Ready to transform your testing experience?
+            </p>
           </div>
 
           {/* Features Preview */}
@@ -48,37 +48,50 @@ const Welcome = () => {
             <div className="grid grid-cols-1 gap-3 text-sm text-gray-600">
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                AI-powered test generation
+                <span>AI-powered test automation</span>
               </div>
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Automated test execution
+                <span>Smart bug detection and reporting</span>
               </div>
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Comprehensive reporting
+                <span>Real-time collaboration tools</span>
               </div>
               <div className="flex items-center">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mr-3"></div>
-                Team collaboration tools
+                <span>Comprehensive analytics dashboard</span>
               </div>
             </div>
           </div>
 
-          {/* Continue Button */}
-          <button
-            onClick={handleContinue}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center group"
-          >
-            Continue
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-          </button>
+          {/* Action Buttons */}
+          <div className="space-y-4">            
+            <button
+              onClick={handleContinue}
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center"
+            >
+              <Home className="mr-2 w-5 h-5" />
+              Continue
+            </button>
+          </div>
 
-          {/* Additional Info */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-gray-500 text-sm">
-              Thank you for choosing AI Test Master for your testing needs! 🚀
-            </p>
+          {/* Quick Stats */}
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">10K+</div>
+                <div className="text-xs text-gray-500">Tests Run</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-600">99.9%</div>
+                <div className="text-xs text-gray-500">Uptime</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-purple-600">500+</div>
+                <div className="text-xs text-gray-500">Happy Users</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
